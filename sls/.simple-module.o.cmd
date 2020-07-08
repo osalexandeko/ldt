@@ -1,1 +1,1 @@
-cmd_/home/a/Desktop/driver_tut/sls/simple-module.o := ld -m elf_x86_64  -z max-page-size=0x200000    -r -o /home/a/Desktop/driver_tut/sls/simple-module.o /home/a/Desktop/driver_tut/sls/main.o /home/a/Desktop/driver_tut/sls/device_file.o
+cmd_/home/a/driver_lab/ldt/sls/simple-module.o := ld -m elf_x86_64  -z max-page-size=0x200000    -r -o /home/a/driver_lab/ldt/sls/simple-module.o /home/a/driver_lab/ldt/sls/main.o /home/a/driver_lab/ldt/sls/device_file.o

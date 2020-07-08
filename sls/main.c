@@ -11,6 +11,7 @@ static int simple_driver_init(void)
 {
       int result = 0;
     printk( KERN_NOTICE "Simple-driver: Initialization started" );
+    printk( KERN_ALERT "Alexk" );
 
       result = register_device();
     return result;

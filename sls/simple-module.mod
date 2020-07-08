@@ -1,2 +1,2 @@
-/home/a/Desktop/driver_tut/sls/main.o /home/a/Desktop/driver_tut/sls/device_file.o
+/home/a/driver_lab/ldt/sls/main.o /home/a/driver_lab/ldt/sls/device_file.o
 

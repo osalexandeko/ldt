@@ -1,0 +1,1 @@
+cmd_/home/a/driver_lab/ldt/tty/tiny_serial.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000  --build-id  -T ./scripts/module-common.lds -o /home/a/driver_lab/ldt/tty/tiny_serial.ko /home/a/driver_lab/ldt/tty/tiny_serial.o /home/a/driver_lab/ldt/tty/tiny_serial.mod.o;  true

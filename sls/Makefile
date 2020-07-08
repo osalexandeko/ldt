@@ -13,7 +13,9 @@ else
 
 all : 
 # run kernel build system to make module
-	$(MAKE) -C $(BUILDSYSTEM_DIR) M=$(PWD) modules
+	$(MAKE) -C $(BUILDSYSTEM_DIR) M=$(PWD) modules 
+debug :
+	$(MAKE) -C $(BUILDSYSTEM_DIR) M=$(PWD) modules EXTRA_CFLAGS="-g -DDBUG"
 
 clean:
 # run kernel build system to cleanup in current directory

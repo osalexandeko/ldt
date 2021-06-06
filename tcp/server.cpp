@@ -8,7 +8,6 @@
 #include <netinet/in.h>
 
 #include <wiringPi.h>
-
 #include <signal.h>
 #include <time.h>
 
@@ -84,33 +83,31 @@ int main(int argc, char *argv[])
      // for accepting new connections while the new socker file descriptor is used for
      // communicating with the connected client.
 	 
-	 for(int i = 0; 1; i++){
-		 newsockfd = accept(sockfd, 
-					 (struct sockaddr *) &cli_addr, &clilen);
-		 if (newsockfd < 0) 
-			  error("ERROR on accept");
+	for(int i = 0; 1; i++){
+		newsockfd = accept(sockfd, 
+				 (struct sockaddr *) &cli_addr, &clilen);
+		if (newsockfd < 0) 
+		  error("ERROR on accept");
 
-		 // printf("server: got connection from %s port %d\n",
-				//inet_ntoa(cli_addr.sin_addr), ntohs(cli_addr.sin_port));
-
-
-		 
-		 // This send() function sends the 13 bytes of the string to the new socket
-		 char string2send[32] =  "Hi man. Hello, man!\n :)";
-		 send(newsockfd, string2send, sizeof(string2send), 0);  // This send() function sends the 13 bytes of the string to the new socket
+		// printf("server: got connection from %s port %d\n",
+			//inet_ntoa(cli_addr.sin_addr), ntohs(cli_addr.sin_port));
 
 
-		 bzero(buffer,256);
 
-		 n = read(newsockfd,buffer,255);
-		 if (n < 0) error("ERROR reading from socket");
-		 printf("Here is the message: %s\n",buffer);
-		 printf("digitalRead(12): %d\n",digitalRead(12));
-		 
-		 digitalWrite(12, !digitalRead(12));
-		 
-	 
-	 }
+		// This send() function sends the 13 bytes of the string to the new socket
+		char string2send[32] =  "Hi man. Hello, man!\n :)";
+		send(newsockfd, string2send, sizeof(string2send), 0);  // This send() function sends the 13 bytes of the string to the new socket
+
+
+		bzero(buffer,256);
+
+		n = read(newsockfd,buffer,255);
+		if (n < 0) error("ERROR reading from socket");
+		printf("Here is the message: %s\n",buffer);
+		printf("digitalRead(12): %d\n",digitalRead(12));
+
+		digitalWrite(12, !digitalRead(12));
+	}
 
      close(newsockfd);
      close(sockfd);

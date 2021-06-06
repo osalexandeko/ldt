@@ -4,13 +4,26 @@
     gcc server.c -lpthread -o server
 */
  
+#include <stdint.h>
 #include<stdio.h>
 #include<string.h>    //strlen
 #include<stdlib.h>    //strlen
 #include<sys/socket.h>
 #include<arpa/inet.h> //inet_addr
 #include<unistd.h>    //write
-#include<pthread.h> //for threading , link with lpthread
+#include<pthread.h>   //for threading , link with lpthread
+
+#include <wiringPi.h>
+#include <signal.h>
+#include <time.h>
+
+#include <iostream>
+
+#include "protocol_parser.hpp"
+
+
+
+using namespace std;
  
 //the thread function
 void *connection_handler(void *);
@@ -90,39 +103,48 @@ void *connection_handler(void *socket_desc)
     int sock = *(int*)socket_desc;
     int read_size;
     char message[2][64] = {"Greetings! I am your connection handler\n","Now type something and i shall repeat what you type \n"} , client_message[2000];
-     
+    
+	protocol_parser pp;
+	
     //Send some messages to the client
     
     write(sock , message[0] , strlen(message[0]));
-     
-    
     write(sock , message[1] , strlen(message[1]));
+	
+	//while(1){
      
-    //Receive a message from client
-    while( (read_size = recv(sock , client_message , 2000 , 0)) > 0 )
-    {
-        //end of string marker
-		client_message[read_size] =  ((int)socket_desc) & 0xFF;
-		client_message[read_size] =  (((int)socket_desc) >> 8) & 0xFF;
-		
-		client_message[read_size + 2] = '\0';
-		
-		//Send the message back to client
-        write(sock , client_message , strlen(client_message));
-		
-		//clear the message buffer
-		memset(client_message, 0, 2000);
-    }
-     
-    if(read_size == 0)
-    {
-        puts("Client disconnected");
-        fflush(stdout);
-    }
-    else if(read_size == -1)
-    {
-        perror("recv failed");
-    }
-    
-    return 0;
-} 
+		//Receive a message from client
+		while( (read_size = recv(sock , client_message , 2000 , 0)) > 0 )
+		{
+			//end of string marker
+			client_message[read_size] =  ((int)socket_desc) & 0xFF;
+			client_message[read_size] =  (((int)socket_desc) >> 8) & 0xFF;
+			
+			client_message[read_size + 2] = '\0';
+			
+			//Send the message back to client
+			write(sock , client_message , strlen(client_message));
+			
+			//cout << client_message << endl;
+			
+			pp.parse_and_execute(client_message);
+			
+			//clear the message buffer
+			memset(client_message, 0, 2000);
+			
+			
+			
+		}
+		 
+		if(read_size == 0)
+		{
+			puts("Client disconnected");
+			fflush(stdout);
+		}
+		else if(read_size == -1)
+		{
+			perror("recv failed");
+		}
+   // }
+    return 0; 
+}

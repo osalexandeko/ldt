@@ -21,15 +21,38 @@
 
 #include "protocol_parser.hpp"
 
+pthread_mutex_t mutex_protocol_parser;
+
 
 
 using namespace std;
+
+
+
  
 //the thread function
 void *connection_handler(void *);
+
+
+/**
+* Prepare protocol parsers
+*/
+void prepare_protocol_parsers(){
+	pthread_mutex_init(&mutex_protocol_parser,NULL);
+}
+
+/*
+* Clean after protocol parsers.
+*/
+void clean_after_protocol_parsers(){
+	pthread_mutex_destroy(&mutex_protocol_parser);
+}
  
 int main(int argc , char *argv[])
 {
+	
+	prepare_protocol_parsers();
+	
     int socket_desc , client_sock , c;
     struct sockaddr_in server , client;
      
@@ -43,7 +66,7 @@ int main(int argc , char *argv[])
      
     //Prepare the sockaddr_in structure
     server.sin_family = AF_INET;
-    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_addr.s_addr = INADDR_ANY; 
     server.sin_port = htons( 8888 );
      
     //Bind
@@ -58,10 +81,7 @@ int main(int argc , char *argv[])
     //Listen
     listen(socket_desc , 3);
      
-    //Accept and incoming connection
-    puts("Waiting for incoming connections...");
-    c = sizeof(struct sockaddr_in);
-     
+       
      
     //Accept and incoming connection
     puts("Waiting for incoming connections...");
@@ -90,7 +110,7 @@ int main(int argc , char *argv[])
     }
      
 	close(client_sock); 
-	 
+	clean_after_protocol_parsers(); 
     return 0;
 }
  
@@ -104,47 +124,47 @@ void *connection_handler(void *socket_desc)
     int read_size;
     char message[2][64] = {"Greetings! I am your connection handler\n","Now type something and i shall repeat what you type \n"} , client_message[2000];
     
-	protocol_parser pp;
+	protocol_parser pp(&mutex_protocol_parser);
 	
     //Send some messages to the client
     
     write(sock , message[0] , strlen(message[0]));
     write(sock , message[1] , strlen(message[1]));
 	
-	//while(1){
-     
-		//Receive a message from client
-		while( (read_size = recv(sock , client_message , 2000 , 0)) > 0 )
-		{
-			//end of string marker
-			client_message[read_size] =  ((int)socket_desc) & 0xFF;
-			client_message[read_size] =  (((int)socket_desc) >> 8) & 0xFF;
-			
-			client_message[read_size + 2] = '\0';
-			
-			//Send the message back to client
-			write(sock , client_message , strlen(client_message));
-			
-			//cout << client_message << endl;
-			
-			pp.parse_and_execute(client_message);
-			
-			//clear the message buffer
-			memset(client_message, 0, 2000);
-			
-			
-			
-		}
-		 
-		if(read_size == 0)
-		{
-			puts("Client disconnected");
-			fflush(stdout);
-		}
-		else if(read_size == -1)
-		{
-			perror("recv failed");
-		}
-   // }
+
+ 
+	//Receive a message from client
+	while( (read_size = recv(sock , client_message , 2000 , 0)) > 0 )
+	{
+		//end of string marker
+		client_message[read_size] =  ((int)socket_desc) & 0xFF;
+		client_message[read_size] =  (((int)socket_desc) >> 8) & 0xFF;
+		
+		client_message[read_size + 2] = '\0';
+		
+		//Send the message back to client
+		write(sock , client_message , strlen(client_message));
+		
+		//cout << client_message << endl;
+		
+		pp.parse_and_execute(client_message);
+		
+		//clear the message buffer
+		memset(client_message, 0, 2000);
+		
+		
+		
+	}
+	 
+	if(read_size == 0)
+	{
+		puts("Client disconnected");
+		fflush(stdout);
+	}
+	else if(read_size == -1)
+	{
+		perror("recv failed");
+	}
+   
     return 0; 
 }

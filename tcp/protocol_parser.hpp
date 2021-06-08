@@ -1,6 +1,7 @@
 #ifndef PROTOCOL_PARSER_HPP
 #define PROTOCOL_PARSER_HPP
 #include <stdint.h>
+#include<pthread.h>
 
 
 //test 01 02 05 20 71 77 65 72 
@@ -28,14 +29,21 @@ typedef enum {
 } PROTOCOL_STATUS_T;
 
 
-
+/**
+* protocol_parser - class.
+*/
 class protocol_parser{
 	public:
-	PROTOCOL_CMD_T cmd = PROT_CMD_EMPTY;
-	
+	 
+	pthread_mutex_t * _ptr_mutex = NULL;
 	
 	protocol_parser(){
 		
+	}
+	
+	//there is need for mutex.
+	protocol_parser(pthread_mutex_t * ptr_mutex){
+		_ptr_mutex = ptr_mutex;
 	}
 	
 	~protocol_parser(){
@@ -43,11 +51,8 @@ class protocol_parser{
 	}
 	
 	PROTOCOL_STATUS_T parse_and_execute(char * buff){
-		
+		pthread_mutex_lock(_ptr_mutex);
 		PROTOCOL_STATUS_T st = PROT_OK;
-		
-		 
-		
 		if(PROT_START != buff[START_IND]){
 			st = PROT_ERROR_WRONG_START;
 		}else if(PROT_CMD_EMPTY == buff[CMD_IND]){
@@ -71,6 +76,7 @@ class protocol_parser{
 				}
 			}
 		}	
+		pthread_mutex_unlock(_ptr_mutex);
 		return  st;	
 	}
 	

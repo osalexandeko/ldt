@@ -145,7 +145,7 @@ void *connection_handler(void *socket_desc)
 		//Send the message back to client
 		write(sock , client_message , strlen(client_message));
 		
-		//cout << client_message << endl;
+		cout << client_message << endl;
 		
 		pp.parse_and_execute(client_message);
 		

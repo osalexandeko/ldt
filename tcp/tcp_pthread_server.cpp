@@ -16,12 +16,13 @@
 #include <wiringPi.h>
 #include <signal.h>
 #include <time.h>
-
+#include <errno.h>
 #include <iostream>
 
 #include "protocol_parser.hpp"
 
-pthread_mutex_t mutex_protocol_parser;
+pthread_mutex_t    mut_prot_parser;
+pthread_mutexattr_t attr_prot_parser_mut;
 
 
 
@@ -38,14 +39,26 @@ void *connection_handler(void *);
 * Prepare protocol parsers
 */
 void prepare_protocol_parsers(){
-	pthread_mutex_init(&mutex_protocol_parser,NULL);
+	if (pthread_mutexattr_init(&attr_prot_parser_mut) != 0) {
+		perror("pthread_mutex_attr_init() error");
+		exit(1);
+	}
+ 
+	//if(0 != pthread_mutexattr_setprotocol(&attr_prot_parser_mut,PTHREAD_PRIO_NONE))
+    //if(0 != pthread_mutexattr_setprotocol(&attr_prot_parser_mut,PTHREAD_PRIO_INHERIT))
+    if(0 != pthread_mutexattr_setprotocol(&attr_prot_parser_mut,PTHREAD_PRIO_PROTECT))
+	{
+      perror("pthread_mutexattr_setprotocol  error");
+      exit(1);
+    }
+	pthread_mutex_init(&mut_prot_parser,&attr_prot_parser_mut);
 }
 
 /*
 * Clean after protocol parsers.
 */
 void clean_after_protocol_parsers(){
-	pthread_mutex_destroy(&mutex_protocol_parser);
+	pthread_mutex_destroy(&mut_prot_parser);
 }
  
 int main(int argc , char *argv[])
@@ -111,6 +124,7 @@ int main(int argc , char *argv[])
      
 	close(client_sock); 
 	clean_after_protocol_parsers(); 
+	pthread_mutex_destroy(&mut_prot_parser);
     return 0;
 }
  
@@ -124,7 +138,7 @@ void *connection_handler(void *socket_desc)
     int read_size;
     char message[2][64] = {"Greetings! I am your connection handler\n","Now type something and i shall repeat what you type \n"} , client_message[2000];
     
-	protocol_parser pp(&mutex_protocol_parser);
+	protocol_parser pp(&mut_prot_parser);
 	
     //Send some messages to the client
     

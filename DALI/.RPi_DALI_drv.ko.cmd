@@ -1,0 +1,1 @@
+cmd_/home/pi/user_dev/cpp/ldt/DALI/RPi_DALI_drv.ko := ld -r  -EL  --build-id=sha1  -T scripts/module.lds -o /home/pi/user_dev/cpp/ldt/DALI/RPi_DALI_drv.ko /home/pi/user_dev/cpp/ldt/DALI/RPi_DALI_drv.o /home/pi/user_dev/cpp/ldt/DALI/RPi_DALI_drv.mod.o;  true

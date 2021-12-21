@@ -1,0 +1,1 @@
+cmd_/home/pi/user_dev/cpp/ldt/DALI/Module.symvers := sed 's/ko$$/o/' /home/pi/user_dev/cpp/ldt/DALI/modules.order | scripts/mod/modpost -m -a   -o /home/pi/user_dev/cpp/ldt/DALI/Module.symvers -e -i Module.symvers   -T -
